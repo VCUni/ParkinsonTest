@@ -105,3 +105,8 @@ cython_debug/
 UserAudioTrain
 raw-test-data/*
 !raw-test-data/.txt
+
+# Delete moquette db
+.mapdb
+
+README
