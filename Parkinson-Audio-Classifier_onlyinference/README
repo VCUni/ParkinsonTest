@@ -1,0 +1,92 @@
+
+Ho ristrutturato leggermente il flusso per maggiore comodita' 
+
+La conversione l'ho inglobata nello script predict.py e ho aggiunto
+l'opzione --batch_mode abilitata per default (sopprime l'output e
+mostra solo percorso del test e classe predetta).
+Attento alla seconda riga in predict.py che  sopprime qualasiasi
+messaggio di tensorflow, per cui se dovesse incorrere in qualche errore
+non sarebbero comunque mostrati. Inizialmente conviene lanciare i test 
+specificati di seguito e se non viene mostrato lo stesso output 
+occorre commenta la linea 2 di predict.py per capire quale probelma si e' verificato.
+
+Il modello pre-addestrato viene richiamato dalla predict.py ed
+applicato alla cartella specificata con --src_dir (come mostrato di seguito).
+
+La cartella radice dei test e' la "raw-test-data" e contiene una
+cartella per ogni test. Attenzione ogni test deve contenere una
+cartella per ogni classe (anche se vuote) altrimenti l'output del 
+classificatore non viene interpretato bene. 
+
+La struttura e' la seguente:
+
+raw-test-data/
+├── oracle.txt
+├── test-1
+│   ├── Parkinson-Disease-Level-0-Healthy
+│   │   ├── subject1_0.wav
+│   │   ├── subject1_1.wav
+│   │   ├── subject1_2.wav
+│   │   ├── subject1_3.wav
+│   │   ├── subject1_4.wav
+│   │   ├── subject1_5.wav
+│   │   ├── subject1_6.wav
+│   │   └── subject1_7.wav
+│   ├── Parkinson-Disease-Level-1
+│   ├── Parkinson-Disease-Level-2
+│   ├── Parkinson-Disease-Level-3
+│   ├── Parkinson-Disease-Level-4
+│   └── Parkinson-Disease-Level-5
+└── test-2
+    ├── Parkinson-Disease-Level-0-Healthy
+    │   ├── subject2_1.wav
+    │   ├── subject2_2.wav
+    │   ├── subject2_3.wav
+    │   ├── subject2_4.wav
+    │   └── subject2_5.wav
+    ├── Parkinson-Disease-Level-1
+    ├── Parkinson-Disease-Level-2
+    ├── Parkinson-Disease-Level-3
+    ├── Parkinson-Disease-Level-4
+    └── Parkinson-Disease-Level-5
+
+I file da testare possono essere inseriti in una cartella
+qualsiasi (ignoriamo la classe vera) ma per convezione assumiamo che i pazienti di livello ignoto come 
+sani (quindi classe Parkinson-Disease-Level-0). 
+Nel file oracle.txt e' riportata la classe vera di ogni test, solo per verificare che il classificatore effettivamente sta
+classificando correttamente, ma va ignorata dato che in esercizio per i campioni inviati dagli utenti non la conosciamo.
+
+I campioni di test hanno queste classi:
+test1, subject1, healthy, PD Level 0
+test2, subject2, sick, PD Level 3
+
+Infatti lanciando le predizioni otteniamo i seguenti ouput:
+
+$> python predict.py --src_dir raw-test-data/test-1
+raw-test-data/test-1/Parkinson-Disease-Level-0-Healthy/subject1_0.wav,Parkinson-Disease-Level-0-Healthy
+raw-test-data/test-1/Parkinson-Disease-Level-0-Healthy/subject1_1.wav,Parkinson-Disease-Level-0-Healthy
+raw-test-data/test-1/Parkinson-Disease-Level-0-Healthy/subject1_2.wav,Parkinson-Disease-Level-0-Healthy
+raw-test-data/test-1/Parkinson-Disease-Level-0-Healthy/subject1_3.wav,Parkinson-Disease-Level-0-Healthy
+raw-test-data/test-1/Parkinson-Disease-Level-0-Healthy/subject1_4.wav,Parkinson-Disease-Level-0-Healthy
+raw-test-data/test-1/Parkinson-Disease-Level-0-Healthy/subject1_5.wav,Parkinson-Disease-Level-0-Healthy
+raw-test-data/test-1/Parkinson-Disease-Level-0-Healthy/subject1_6.wav,Parkinson-Disease-Level-0-Healthy
+raw-test-data/test-1/Parkinson-Disease-Level-0-Healthy/subject1_7.wav,Parkinson-Disease-Level-0-Healthy
+
+$> python predict.py --src_dir raw-test-data/test-2
+raw-test-data/test-2/Parkinson-Disease-Level-0-Healthy/subject2_1.wav,Parkinson-Disease-Level-3
+raw-test-data/test-2/Parkinson-Disease-Level-0-Healthy/subject2_2.wav,Parkinson-Disease-Level-3
+raw-test-data/test-2/Parkinson-Disease-Level-0-Healthy/subject2_3.wav,Parkinson-Disease-Level-3
+raw-test-data/test-2/Parkinson-Disease-Level-0-Healthy/subject2_4.wav,Parkinson-Disease-Level-3
+raw-test-data/test-2/Parkinson-Disease-Level-0-Healthy/subject2_5.wav,Parkinson-Disease-Level-3
+
+Per ora integra lo script in questo modo, lasciando i valori di
+default pre-impostati (per la conversione e per il modello di rete
+neurale). Poi affronteremo la questione relativa al dataset di
+training e vedremo se e' opportuno esporre alcuni parametri.
+
+Se ci sono problemi, possiamo fare una call dedicata giovedi' (da
+concordare)
+
+
+
+

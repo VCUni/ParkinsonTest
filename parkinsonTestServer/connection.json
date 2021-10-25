@@ -1,0 +1,7 @@
+{
+	"dbUrl" : "sqlite:parkinsondatabase.db",
+	"dbUser" : "",
+	"dbPass" : "",
+	"filePath" : "D:\\Utenti\\vikca\\Progetto tesi\\Parkinson-Audio-Classifier_onlyinference\\",
+	"venvScriptPath" : "D:\\Utenti\\vikca\\Progetto tesi\\.venv\\Scripts\\"
+}
