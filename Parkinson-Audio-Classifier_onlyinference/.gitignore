@@ -102,11 +102,10 @@ dmypy.json
 cython_debug/
 
 # Directories
-UserAudioTrain
-raw-test-data/*
-!raw-test-data/.txt
+UserAudioTrain/
+raw-test-data/
 
 # Delete moquette db
-.mapdb
+*.mapdb
 
 README

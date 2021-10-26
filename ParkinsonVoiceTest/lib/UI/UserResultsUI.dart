@@ -30,7 +30,7 @@ class _UserResultsUIState extends State<UserResultsUI> {
     super.initState();
     _box = Boxes.getTests();
     _tests = _box.values.toList().cast<Test>();
-    if (_tests.length != 0) _requestPending();
+    if (_tests.length != 0) _requestPending();  //For iOS
   }
 
 

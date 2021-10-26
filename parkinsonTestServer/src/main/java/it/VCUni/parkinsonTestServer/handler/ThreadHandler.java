@@ -61,7 +61,6 @@ public class ThreadHandler {
 		try {
 			pendingTest = tests.getPendingTests();
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		log.info("ThreadHandler starts");
@@ -82,14 +81,13 @@ public class ThreadHandler {
 			for(i=0;i<threads.size();i++) {
 				if(!threads.isEmpty() && threads.get(i).status==Status.failed) {
 					int testid = threads.get(i).testid;
-					log.info("Attempt of data processing test: "+testid
+					log.error("Attempt of data processing test: "+testid
 							+" ended with error, the status of the test now results as Failed");
 					
 					threads.remove(i);
 					try {
 						tests.setFailed(testid);
 					} catch (TestNotFoundException | DBException | TestNotCompletedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -97,7 +95,6 @@ public class ThreadHandler {
 					try {
 						saveProcessedResult(threads.get(i).testid, threads.get(i).result);
 					} catch (TestNotFoundException | DBException | TestNotCompletedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					threads.remove(i);
@@ -145,7 +142,7 @@ public class ThreadHandler {
 	            pub = factory.generatePublic(spec);
 	    	}                       
 	        catch( Exception e ) {
-	            System.out.println(e.toString());       
+	            System.err.println(e.toString());       
 	        }        
 	    	return pub;
 	}
@@ -237,14 +234,14 @@ class ThreadScript extends Thread{
             status = Status.completed;
             // read any errors from the attempted command
             while ((s = stdError.readLine()) != null) {
-                System.out.println(s);
+                System.err.println(s);
             }
             stdInput.close();
             stdError.close();
             return;
         }
         catch (IOException e) {
-            System.out.println("exception happened - here's what I know: ");
+            System.err.println("exception happened - here's what I know: ");
             e.printStackTrace();
             status=Status.failed; 
             return;

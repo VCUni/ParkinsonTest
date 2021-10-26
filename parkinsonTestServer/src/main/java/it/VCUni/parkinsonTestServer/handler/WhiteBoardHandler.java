@@ -45,7 +45,6 @@ public class WhiteBoardHandler {
         final Server mqttBroker = new Server();
         mqttBroker.startServer(configs, null);
         log.info("moquette mqtt broker started");
-        System.out.println("moquette mqtt broker started");
        
         pub = new WhiteBoardPublisher();
        }	
