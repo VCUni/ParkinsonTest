@@ -55,7 +55,7 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 		
 		test.user = u;
 		test.setStatus(TestStatus.Uncompleted.toString());
-		test.setResult(null);
+		//test.setResult(null);
 		if(publicKeyMod.equals("") || publicKeyExp.equals("")) {
 			test.setPubMod(null);
 			test.setPubExp(null);
@@ -146,7 +146,6 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 	public void setResult(int testid, String result) throws TestNotFoundException, DBException, TestNotCompletedException {
 		TestDb testdb = getTestDb(testid);
 		if(getTest(testid).getSampleList().size() != 0) throw new TestNotCompletedException();
-		testdb.setResult(result);
 		testdb.setStatus(TestStatus.Completed.toString());
 		
 		try {

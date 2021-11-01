@@ -14,7 +14,7 @@ abstract class IClient {
   Future<bool> upload(File file, int testid);
   Future requestResult(int testid);
   Future sendResult(String result, int testid);
-  Future<String> getResult(int testid);
+  Future<String> getResult(String modulus, String exponent);
 
   Future<List<String>> getSamples(int testid);
   Future<int> getCurrentTest();

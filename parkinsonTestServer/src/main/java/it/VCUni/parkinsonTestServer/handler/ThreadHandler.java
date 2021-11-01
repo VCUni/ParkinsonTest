@@ -28,8 +28,10 @@ import org.springframework.stereotype.Component;
 
 import it.VCUni.parkinsonTestServer.entity.Test;
 import it.VCUni.parkinsonTestServer.exception.DBException;
+import it.VCUni.parkinsonTestServer.exception.InvalidPublicKeyException;
 import it.VCUni.parkinsonTestServer.exception.TestNotCompletedException;
 import it.VCUni.parkinsonTestServer.exception.TestNotFoundException;
+import it.VCUni.parkinsonTestServer.interfaces.ReportAccess;
 import it.VCUni.parkinsonTestServer.interfaces.TestAccess;
 import it.VCUni.parkinsonTestServer.settings.IDbConnection;
 
@@ -41,6 +43,9 @@ public class ThreadHandler {
 	
 	@Autowired
 	TestAccess tests;
+	
+	@Autowired
+	ReportAccess reports;
 	
 	@Autowired
 	Logger log;
@@ -94,7 +99,7 @@ public class ThreadHandler {
 				if(!threads.isEmpty() && threads.get(i).status==Status.completed) {
 					try {
 						saveProcessedResult(threads.get(i).testid, threads.get(i).result);
-					} catch (TestNotFoundException | DBException | TestNotCompletedException e) {
+					} catch (TestNotFoundException | DBException | TestNotCompletedException | InvalidPublicKeyException e) {
 						e.printStackTrace();
 					}
 					threads.remove(i);
@@ -111,17 +116,20 @@ public class ThreadHandler {
 	 * @throws TestNotFoundException
 	 * @throws DBException
 	 * @throws TestNotCompletedException
+	 * @throws InvalidPublicKeyException 
 	 */
 	public void saveProcessedResult(int testid, String result) throws TestNotFoundException,
-		DBException, TestNotCompletedException {
+		DBException, TestNotCompletedException, InvalidPublicKeyException {
 		
 		try {
 			Test t = tests.getTest(testid);
 			PublicKey pubkey = genKey(t.getPublicKey().get(0), t.getPublicKey().get(1));
         	String encryptedString = Base64.getEncoder().encodeToString(encrypt(result.getBytes(), pubkey));
+        	reports.generateReport(t.getPublicKey().get(0), t.getPublicKey().get(1), encryptedString);
 			tests.setResult(testid, encryptedString);
 			whiteboard.sendInfo(testid);
-		} catch (NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
+		} catch (NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException |
+				NoSuchPaddingException e) {
 			System.err.println(e.getMessage());
 		}
 

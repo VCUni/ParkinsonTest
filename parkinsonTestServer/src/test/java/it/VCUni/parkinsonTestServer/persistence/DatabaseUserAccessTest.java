@@ -106,8 +106,7 @@ public class DatabaseUserAccessTest {
 		
 		User user = new User("giacomo", "rossi", "GCMRSS", "10/03/1971", "Test");
 		users.registerUser(user, "092454");
-		
-		users.getUserResults("GCMRSS");		
+				
 	}
 	
 	

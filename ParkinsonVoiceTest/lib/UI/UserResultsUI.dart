@@ -39,7 +39,7 @@ class _UserResultsUIState extends State<UserResultsUI> {
     Iterable<Test> pending = _tests.where((element) => element.result == "");
     if (pending.length != 0) {
       for (Test t in pending) {
-        widget._client.getResult(t.testid).then((value) {
+        widget._client.getResult(t.publickey[0], t.publickey[1]).then((value) {
           t.end = DateFormat("dd/MM/yyyy HH:mm:ss").format(DateTime.now());
 
           RSAPrivateKey priv = new RSAPrivateKey(

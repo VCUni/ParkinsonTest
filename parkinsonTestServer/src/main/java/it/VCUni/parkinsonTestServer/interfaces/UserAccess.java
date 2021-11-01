@@ -31,8 +31,6 @@ public interface UserAccess {
 	
 	UserDetails loadUserByUsername(String userlogin) throws UsernameNotFoundException;
 
-	Stream<String> getUserResults(String userlogin) throws UserNotFoundException, DBException;
-
 	Integer getCurrentTest(String userlogin) throws UserNotFoundException, DBException, MultipleTestException;
 
 }

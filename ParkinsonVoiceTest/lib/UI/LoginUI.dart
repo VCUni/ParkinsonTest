@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:parkinson_voice_test/entity/User.dart';
 import 'package:parkinson_voice_test/service/Client.dart';
 import 'package:parkinson_voice_test/service/IClient.dart';
-import 'package:parkinson_voice_test/service/MqttClientFactoryServer.dart';
 import 'HomeUI.dart';
 import 'RegisterUI.dart';
 
@@ -98,16 +97,19 @@ class _LoginUIState extends State<LoginUI> {
           SizedBox(
             height: 20,
           ),
-          Text('''This app collect personal data from its user:
-  View user information: 
-   - name
-   - surname
-   - fiscal code
-   - date of birth.
-   - Store and Analize the sent audio
+          Text('''This app collects user's personal data:
+User information: 
+   - Name
+   - Surname
+   - Fiscal code
+   - Date of birth
+   - Audio files
+   
+  The sent audio will be stored and analyzed
 
-The result is not visible to other users.
+The result won't be visible to anyone other than the user himself.
 This app require internet and microphone permission.'''),
+
         ],
       ),
       actions: [

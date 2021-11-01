@@ -1,6 +1,5 @@
 package it.VCUni.parkinsonTestServer.entity;
 
-// Rappresenta il test di un utente
 /**
  * Represents user's test
 */
@@ -10,15 +9,13 @@ import java.util.Objects;
 public class Test {
 	
 	private int id;
-	private String result;
 	private String user;
 	private TestStatus status;
 	private List<String> samplelist;
 	private List<String> publicKey;
 	
-	public Test(int id, String result, String user, List<String> samplelist, List<String> publicKey, TestStatus status) {
+	public Test(int id, String user, List<String> samplelist, List<String> publicKey, TestStatus status) {
 		this.id = id;
-		this.result = result;
 		this.samplelist = samplelist;
 		this.user = user;
 		this.publicKey = publicKey;
@@ -40,13 +37,7 @@ public class Test {
 		return id;
 	}
 
-	/**
-	 * @return the price
-	 */
-	public String getResult() {
-		return result;
-	}
-
+	
 	/**
 	 * @return the user
 	 */
@@ -70,7 +61,7 @@ public class Test {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(user, id, result, samplelist, publicKey);
+		return Objects.hash(user, id, samplelist, publicKey);
 	}
 
 
@@ -81,8 +72,8 @@ public class Test {
 		if (!(obj instanceof Test))
 			return false;
 		Test other = (Test) obj;
-		return id == other.id && result == other.result
-				&& Objects.equals(user, other.user) && Objects.equals(samplelist, other.samplelist)
+		return id == other.id && Objects.equals(user, other.user) 
+				&& Objects.equals(samplelist, other.samplelist)
 				&& Objects.equals(publicKey, other.publicKey);
 	}
 

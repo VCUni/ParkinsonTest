@@ -53,8 +53,6 @@ public class UserHandlerTest {
 		userhandler.getUser("GCMRSS");
 		
 		userhandler.getCurrentTest("GCMRSS");
-		
-		userhandler.getUserResults("GCMRSS");
 	}
 	
 	

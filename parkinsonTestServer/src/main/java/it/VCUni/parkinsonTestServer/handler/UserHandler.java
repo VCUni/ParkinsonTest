@@ -1,7 +1,5 @@
 package it.VCUni.parkinsonTestServer.handler;
 
-import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,16 +52,6 @@ public class UserHandler {
 	}
 	
 	
-	/**
-	 * @param userlogin
-	 * @return
-	 * @throws UserNotFoundException
-	 * @throws DBException
-	 */
-	public Stream<String> getUserResults(String userlogin) throws UserNotFoundException, DBException {
-		
-		return users.getUserResults(userlogin);
-	}
 	
 	/**
 	 * @param userlogin

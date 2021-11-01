@@ -3,6 +3,7 @@ package it.VCUni.parkinsonTestServer.persistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import it.VCUni.parkinsonTestServer.persistence.reports.DatabaseReportAccess;
 import it.VCUni.parkinsonTestServer.persistence.samples.DatabaseSampleAccess;
 import it.VCUni.parkinsonTestServer.persistence.tests.DatabaseTestAccess;
 import it.VCUni.parkinsonTestServer.persistence.users.DatabaseUserAccess;
@@ -19,11 +20,14 @@ public class DbTester {
 	DatabaseTestAccess testDB;
 	@Autowired
 	DatabaseSampleAccess sampleDB;
+	@Autowired
+	DatabaseReportAccess reportDB;
 	
 	public void drop() throws Exception	{
 		userDB.dropTable();
 		testDB.dropTable();
 		sampleDB.dropTable();
+		reportDB.dropTable();
 		
 	}
 }

@@ -37,6 +37,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @ComponentScan("it.VCUni.parkinsonTestServer.persistence.users")
 @ComponentScan("it.VCUni.parkinsonTestServer.persistence.tests")
 @ComponentScan("it.VCUni.parkinsonTestServer.persistence.samples")
+@ComponentScan("it.VCUni.parkinsonTestServer.persistence.reports")
 @ComponentScan("it.VCUni.parkinsonTestServer.handler")
 @ComponentScan("it.VCUni.parkinsonTestServer.services")
 

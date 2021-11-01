@@ -197,9 +197,10 @@ class Client implements IClient {
 
 
   @override
-  Future<String> getResult(int testid) async {
-    var res = await _client.get(Uri.parse(_servicesUrl + "/test/"+testid.toString()+"/result"),
-        headers: {_header: _token});
+  Future<String> getResult(String modulus, String exponent) async {
+    var res = await _client.post(Uri.parse(_servicesUrl + "/test/report"),
+        headers: {_header: _token},
+        body: {"modulus" : modulus, "exponent" : exponent});
 
     if (res.statusCode != HttpStatus.ok)
       throw ServiceException(

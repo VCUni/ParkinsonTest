@@ -26,6 +26,7 @@ import it.VCUni.parkinsonTestServer.entity.TestStatus;
 import it.VCUni.parkinsonTestServer.entity.User;
 import it.VCUni.parkinsonTestServer.exception.DBException;
 import it.VCUni.parkinsonTestServer.exception.MultipleTestException;
+import it.VCUni.parkinsonTestServer.exception.ReportNotFoundException;
 import it.VCUni.parkinsonTestServer.exception.TestNotCompletedException;
 import it.VCUni.parkinsonTestServer.exception.TestNotFoundException;
 import it.VCUni.parkinsonTestServer.exception.UserNotFoundException;
@@ -33,6 +34,7 @@ import it.VCUni.parkinsonTestServer.handler.TestHandler;
 import it.VCUni.parkinsonTestServer.handler.UserHandler;
 import it.VCUni.parkinsonTestServer.handler.WhiteBoardHandler;
 import it.VCUni.parkinsonTestServer.handler.DocumentHandler;
+import it.VCUni.parkinsonTestServer.handler.ReportHandler;
 
 /**
  *  Service that allows to manage test
@@ -44,6 +46,9 @@ public class TestService {
 
 	@Autowired
 	WhiteBoardHandler whiteboard;
+	
+	@Autowired
+	ReportHandler reporthandler;
 	
 	@Autowired
 	TestHandler testhandler;
@@ -72,7 +77,7 @@ public class TestService {
 		   
         boolean tester;
 		try {
-			if(testhandler.getTest(testid).getResult() != null || testhandler.getTest(testid).getStatus()!=TestStatus.Uncompleted) return Response.status(Status.NOT_ACCEPTABLE).build();
+			if(testhandler.getTest(testid).getStatus()!=TestStatus.Uncompleted) return Response.status(Status.NOT_ACCEPTABLE).build();
 			if(userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName()).getRole().equals("Test")) tester = true;
 			else tester = false;
 			Test test = testhandler.getTest(testid);
@@ -100,15 +105,11 @@ public class TestService {
 		Test test;
 		User us;
 		try {
-			if(testhandler.getTest(testid).getResult() != null || testhandler.getTest(testid).getStatus()!=TestStatus.Uncompleted) return Response.status(Status.NOT_ACCEPTABLE).build();
+			if(testhandler.getTest(testid).getStatus()!=TestStatus.Uncompleted) return Response.status(Status.NOT_ACCEPTABLE).build();
 			us = userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName());
 			test = testhandler.getTest(testid);
 			if(!test.getUser().equals(us.getCf())) return Response.status(Status.EXPECTATION_FAILED).build();
 			testhandler.setPending(testid);
-			
-			//String result = testhandler.executeScript(testid);
-			//testhandler.saveProcessedResult(testid, result);
-			//whiteboard.sendInfo(testid);
 		} catch(UserNotFoundException | TestNotFoundException e) {
 			return Response.status(Status.NOT_FOUND).build();
 		} catch(DBException e) {
@@ -129,7 +130,7 @@ public class TestService {
 	@Path("{testid}/send/{result}")
 	public Response setResult(@PathParam("testid") int testid, @PathParam("result") String result) {
 		try {
-			if(testhandler.getTest(testid).getResult() != null) return Response.status(Status.NOT_ACCEPTABLE).build();
+			if(testhandler.getTest(testid).getStatus()!=TestStatus.Uncompleted) return Response.status(Status.NOT_ACCEPTABLE).build();
 			if(!userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName()).getRole().equals("Train"))
 				return Response.status(Status.UNAUTHORIZED).build();
 			if(!userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName()).getCf().equals(testhandler.getTest(testid).getUser()))
@@ -182,7 +183,7 @@ public class TestService {
 	public Response getSamples(@PathParam("testid") int testid) {
 		List<String> list = Collections.emptyList();
 		try {
-			if(testhandler.getTest(testid).getResult() != null) return Response.status(Status.NOT_ACCEPTABLE).build();
+			if(testhandler.getTest(testid).getStatus()!=TestStatus.Uncompleted) return Response.status(Status.NOT_ACCEPTABLE).build();
 			list = testhandler.getTest(testid).getSampleList();
 		} catch (TestNotFoundException e) {
 			Response.status(Status.NOT_FOUND).build();
@@ -197,19 +198,16 @@ public class TestService {
 	 * @param testid
 	 * @return
 	 */
-	@GET
-	@Path("{testid}/result")
-	public Response getResult(@PathParam("testid") int testid) {
-		Test test;
+	@POST
+	@Path("report")
+	public Response getResult(@FormParam("modulus") String modulus, @FormParam("exponent") String exponent) {
+		//Test test;
 		User us;
 		String res;
 		try {
 			us = userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName());
-			test = testhandler.getTest(testid);
-			if(!test.getUser().equals(us.getCf())) return Response.status(Status.EXPECTATION_FAILED).build();
-			res = test.getResult();
-			if(res==null) return Response.status(Status.NO_CONTENT).build();
-		} catch(UserNotFoundException | TestNotFoundException e) {
+			res = reporthandler.getResult(modulus, exponent, us.getCf());
+		} catch(UserNotFoundException | ReportNotFoundException e) {
 			return Response.status(Status.NOT_FOUND).build();
 		} catch(DBException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();

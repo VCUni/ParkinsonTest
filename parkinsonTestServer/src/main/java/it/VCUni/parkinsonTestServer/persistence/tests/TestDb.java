@@ -19,7 +19,6 @@ public class TestDb {
 	public final static String ID = "id";
 	public final static String USER = "user";
 	public final static String AUDIOURL = "audioUrl";
-	public final static String RESULT = "result";
 	public final static String PUBMOD = "pubMod";
 	public final static String PUBEXP = "pubExp";
 	public final static String STATUS = "teststatus";
@@ -54,9 +53,6 @@ public class TestDb {
 	@DatabaseField(canBeNull = true)
 	protected String url4;
 	
-	@DatabaseField(canBeNull = true, columnName = RESULT)
-	protected String result;
-
 	@DatabaseField(canBeNull = true, columnName = PUBMOD)
 	protected String pubMod;
 
@@ -78,24 +74,9 @@ public class TestDb {
 		if(url2==null) samplelist.add(0, sample2);
 		if(url1==null) samplelist.add(0, sample1);
 		
-		return new Test(id, result, user.getCf(), samplelist, Arrays.asList(pubMod, pubExp), TestStatus.valueOf(status));
+		return new Test(id, user.getCf(), samplelist, Arrays.asList(pubMod, pubExp), TestStatus.valueOf(status));
 	}
 
-
-	/**
-	 * @return the price
-	 */
-	public String getResult() {
-		return result;
-	}
-
-
-	/**
-	 * @param price the price to set
-	 */
-	public void setResult(String result) {
-		this.result = result;
-	}
 
 	/**
 	 * @return the id

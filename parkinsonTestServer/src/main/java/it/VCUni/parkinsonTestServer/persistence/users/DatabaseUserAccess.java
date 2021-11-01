@@ -150,15 +150,6 @@ public class DatabaseUserAccess extends AbstractDao<Integer, UserDb> implements 
 	}
 	
 	
-	/**
-	 * @return Stream of tests' result
-	 */
-	@Override
-	public Stream<String> getUserResults(String userlogin) throws UserNotFoundException, DBException {
-		
-		return getUserDb(userlogin).tests.stream().filter(x -> x.getResult() != null).map(x -> x.getResult());
-	}
-	
 	
 	/**
 	 * @return testid
