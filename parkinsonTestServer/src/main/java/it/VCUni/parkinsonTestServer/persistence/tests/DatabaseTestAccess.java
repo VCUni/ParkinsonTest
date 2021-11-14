@@ -53,9 +53,9 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 		if(userDb.getCurrentTest(u.getCf()) != 0) throw new MultipleTestException();
 		TestDb test = new TestDb();
 		
+		test.setTrainResult(null);
 		test.user = u;
 		test.setStatus(TestStatus.Uncompleted.toString());
-		//test.setResult(null);
 		if(publicKeyMod.equals("") || publicKeyExp.equals("")) {
 			test.setPubMod(null);
 			test.setPubExp(null);
@@ -144,6 +144,20 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 	
 	@Override
 	public void setResult(int testid, String result) throws TestNotFoundException, DBException, TestNotCompletedException {
+		TestDb testdb = getTestDb(testid);
+		if(getTest(testid).getSampleList().size() != 0) throw new TestNotCompletedException();
+		testdb.setTrainResult(result);
+		testdb.setStatus(TestStatus.Completed.toString());
+		
+		try {
+			dao.update(testdb);
+		} catch(SQLException ex) {throw new DBException(ex.toString());}
+		return;
+	}
+	
+	
+	@Override
+	public void setCompleted(int testid) throws TestNotFoundException, DBException, TestNotCompletedException {
 		TestDb testdb = getTestDb(testid);
 		if(getTest(testid).getSampleList().size() != 0) throw new TestNotCompletedException();
 		testdb.setStatus(TestStatus.Completed.toString());

@@ -21,6 +21,7 @@ public class TestDb {
 	public final static String AUDIOURL = "audioUrl";
 	public final static String PUBMOD = "pubMod";
 	public final static String PUBEXP = "pubExp";
+	public final static String TRAINRESULT = "trainresult";
 	public final static String STATUS = "teststatus";
 	
 	@DatabaseField(generatedId = true, columnName = ID)
@@ -61,6 +62,9 @@ public class TestDb {
 	
 	@DatabaseField(canBeNull = false, columnName = STATUS)
 	protected String status;
+	
+	@DatabaseField(canBeNull = true, columnName = TRAINRESULT)
+	protected String trainresult;
 	
 	
 	/**
@@ -119,6 +123,13 @@ public class TestDb {
 	 */
 	public String getStatus() {
 		return status;
+	}
+	
+	/**
+	 * @param trainresult the trainresult to set
+	 */
+	public void setTrainResult(String result) {
+		this.trainresult = result;
 	}
 	
 }

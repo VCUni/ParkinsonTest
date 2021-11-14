@@ -58,53 +58,55 @@ public class ThreadHandler {
 	
 	
 	public List<Integer> pendingTest = null;
+	int cores = 0;
 	List<ThreadScript> threads = new ArrayList<ThreadScript>();
 	
 	@Scheduled(fixedDelay = 3000)
 	public void run() {
 		if(pendingTest==null) {
-		try {
-			pendingTest = tests.getPendingTests();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
+			cores = Runtime.getRuntime().availableProcessors();
+			try {
+				pendingTest = tests.getPendingTests();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			log.info("ThreadHandler starts, "+cores+ " cores available");
 		}
-		log.info("ThreadHandler starts");
+		int i = 0;
+		while(threads.size()<cores && !pendingTest.isEmpty()) {
+			Optional<Integer> r = null;
+			synchronized(pendingTest){
+				if (!pendingTest.isEmpty()) r = Optional.of(pendingTest.remove(0));
+			}
+			
+			if(r!=null) {
+				ThreadScript s = new ThreadScript(r.orElse(-1), conn);
+				threads.add(s);
+				s.start();
+			}
 		}
-			int i = 0;
-			if(threads.size()<3) {
-				Optional<Integer> r = null;
-				synchronized(pendingTest){
-					if (!pendingTest.isEmpty()) r = Optional.of(pendingTest.remove(0));
-				}
+		for(i=0;i<threads.size();i++) {
+			if(!threads.isEmpty() && threads.get(i).status==Status.failed) {
+				int testid = threads.get(i).testid;
+				log.error("Attempt of data processing test: "+testid
+						+" ended with error, the status of the test now results as Failed");
 				
-				if(r!=null) {
-					ThreadScript s = new ThreadScript(r.orElse(-1), conn);
-					threads.add(s);
-					s.start();
+				threads.remove(i);
+				try {
+					tests.setFailed(testid);
+				} catch (TestNotFoundException | DBException | TestNotCompletedException e) {
+					e.printStackTrace();
 				}
 			}
-			for(i=0;i<threads.size();i++) {
-				if(!threads.isEmpty() && threads.get(i).status==Status.failed) {
-					int testid = threads.get(i).testid;
-					log.error("Attempt of data processing test: "+testid
-							+" ended with error, the status of the test now results as Failed");
-					
-					threads.remove(i);
-					try {
-						tests.setFailed(testid);
-					} catch (TestNotFoundException | DBException | TestNotCompletedException e) {
-						e.printStackTrace();
-					}
+			if(!threads.isEmpty() && threads.get(i).status==Status.completed) {
+				try {
+					saveProcessedResult(threads.get(i).testid, threads.get(i).result);
+				} catch (TestNotFoundException | DBException | TestNotCompletedException | InvalidPublicKeyException e) {
+					e.printStackTrace();
 				}
-				if(!threads.isEmpty() && threads.get(i).status==Status.completed) {
-					try {
-						saveProcessedResult(threads.get(i).testid, threads.get(i).result);
-					} catch (TestNotFoundException | DBException | TestNotCompletedException | InvalidPublicKeyException e) {
-						e.printStackTrace();
-					}
-					threads.remove(i);
-				}
+				threads.remove(i);
 			}
+		}
 		
 	}
 		
@@ -126,7 +128,7 @@ public class ThreadHandler {
 			PublicKey pubkey = genKey(t.getPublicKey().get(0), t.getPublicKey().get(1));
         	String encryptedString = Base64.getEncoder().encodeToString(encrypt(result.getBytes(), pubkey));
         	reports.generateReport(t.getPublicKey().get(0), t.getPublicKey().get(1), encryptedString);
-			tests.setResult(testid, encryptedString);
+			tests.setCompleted(testid);
 			whiteboard.sendInfo(testid);
 		} catch (NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException |
 				NoSuchPaddingException e) {

@@ -281,7 +281,7 @@ class _RecorderUIState extends State<RecorderUI> {
     return Scaffold(
       backgroundColor: Colors.blue[50],
       appBar: AppBar(
-        title: const Text('Simple Recorder'),
+        title: const Text('Recorder'),
       ),
       body: makeBody(),
     );

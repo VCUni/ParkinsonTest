@@ -30,5 +30,7 @@ public interface TestAccess {
 	List<Integer> getPendingTests() throws SQLException;
 
 	void setFailed(int testid) throws TestNotFoundException, DBException, TestNotCompletedException;
+
+	void setCompleted(int testid) throws TestNotFoundException, DBException, TestNotCompletedException;
 		
 }

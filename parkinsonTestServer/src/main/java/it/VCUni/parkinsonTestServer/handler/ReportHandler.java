@@ -17,7 +17,6 @@ public class ReportHandler {
 	 Logger log;
 	 
 	 public String getResult(String modkey, String expkey, String cf) throws ReportNotFoundException, DBException {
-		 log.info("Report requested from "+cf);
 		 return reports.getResult(modkey, expkey);
 	 }
 }
