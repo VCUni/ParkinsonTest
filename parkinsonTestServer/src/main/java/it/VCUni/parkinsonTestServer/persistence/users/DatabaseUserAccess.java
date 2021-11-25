@@ -158,7 +158,7 @@ public class DatabaseUserAccess extends AbstractDao<Integer, UserDb> implements 
 	public Integer getCurrentTest(String userlogin) throws UserNotFoundException, DBException, MultipleTestException {
 		
 		List<Integer> current = getUserDb(userlogin).tests.stream()
-				.filter(x -> x.getStatus().equals(TestStatus.Uncompleted.toString())).map(x -> x.getId()).collect(Collectors.toList());
+				.filter(x -> x.getStatus()==TestStatus.Uncompleted).map(x -> x.getId()).collect(Collectors.toList());
 		
 		if(current.size()==0) return 0;
 		else if (current.size()>1) throw new MultipleTestException();

@@ -14,7 +14,7 @@ public class ReportDb {
 	public final static String EXPKEY = "expkey";
 	public final static String RESULT = "result";
 			
-	@DatabaseField(canBeNull = false, unique = true, columnName = MODKEY)
+	@DatabaseField(canBeNull = false, columnName = MODKEY)
 	protected String modulus;
 
 	@DatabaseField(canBeNull = false, columnName = EXPKEY)

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.VCUni.parkinsonTestServer.entity.Test;
+import it.VCUni.parkinsonTestServer.entity.UploadStatus;
 import it.VCUni.parkinsonTestServer.exception.DBException;
 import it.VCUni.parkinsonTestServer.exception.MultipleTestException;
 import it.VCUni.parkinsonTestServer.exception.TestNotCompletedException;
@@ -57,10 +58,23 @@ public class TestHandler {
 	 * @throws DBException
 	 * @throws TestNotFoundException
 	 */
-	public void saveAudio(String userlogin, String url, int testid) throws UserNotFoundException, 
+	public String savePath(String userlogin, boolean tester, int testid) throws UserNotFoundException, 
 		DBException, TestNotFoundException {
 
-		tests.saveAudio(userlogin, url, testid);
+		String path;
+		if(tester)
+			path = conn.getFilePath()+"raw-test-data/test"+testid+"/Parkinson-Disease-Level-0-Healthy/"+
+					testid +".";
+		
+		else path = conn.getFilePath()+"UserAudioTrain/"+testid +".";
+		
+		return tests.savePath(userlogin, path, testid);
+	}
+	
+	
+	public void deletePath(int testid, String path) throws TestNotFoundException, DBException {
+		
+		tests.deletePath(testid, path);
 	}
 	
 	
@@ -93,6 +107,20 @@ public class TestHandler {
 	 */
 	public void setPending(int testid) throws TestNotFoundException, DBException, TestNotCompletedException {
 		tests.setPending(testid);
-		threadhandler.pendingTest.add(testid);
+		synchronized(threadhandler.pendingTest){
+			threadhandler.pendingTest.add(testid);
+		}
 	}	
+	
+	
+	public void setUploadPending(int testid) throws DBException {
+		while(tests.setUploadStatus(testid, UploadStatus.Pending, UploadStatus.Free)!=1);
+		return;
+	}
+	
+	
+	public void setUploadFree(int testid) throws DBException {
+		if(tests.setUploadStatus(testid, UploadStatus.Free, UploadStatus.Pending)!=1) throw new DBException("Detected unreachable state");
+		return;
+	}
 }

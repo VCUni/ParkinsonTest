@@ -2,6 +2,8 @@ package it.VCUni.parkinsonTestServer.persistence.tests;
 
 import java.io.IOException;
 import com.j256.ormlite.stmt.SelectArg;
+import com.j256.ormlite.stmt.UpdateBuilder;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import it.VCUni.parkinsonTestServer.entity.Test;
 import it.VCUni.parkinsonTestServer.entity.TestStatus;
+import it.VCUni.parkinsonTestServer.entity.UploadStatus;
 import it.VCUni.parkinsonTestServer.exception.DBException;
 import it.VCUni.parkinsonTestServer.exception.MultipleTestException;
 import it.VCUni.parkinsonTestServer.exception.TestNotCompletedException;
@@ -53,9 +56,10 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 		if(userDb.getCurrentTest(u.getCf()) != 0) throw new MultipleTestException();
 		TestDb test = new TestDb();
 		
+		test.uploadstatus=UploadStatus.Free;
 		test.setTrainResult(null);
 		test.user = u;
-		test.setStatus(TestStatus.Uncompleted.toString());
+		test.setStatus(TestStatus.Uncompleted);
 		if(publicKeyMod.equals("") || publicKeyExp.equals("")) {
 			test.setPubMod(null);
 			test.setPubExp(null);
@@ -119,7 +123,7 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 	
 	
 	@Override
-	public void saveAudio(String userlogin, String url, int testid) 
+	public String savePath(String userlogin, String path, int testid) 
 			throws UserNotFoundException, DBException, TestNotFoundException {
 		
 		TestDb test = getTestDb(testid);
@@ -127,19 +131,36 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 		if (u == null) throw new UserNotFoundException();
 
 		Test t = getTest(testid);
+		String topsample = t.getSampleList().get(0);
+		String samplepath = path+topsample+".wav";
 		
-		String struploaded = t.getSampleList().get(0);
+		if(topsample.equals(test.sample1)) test.url1 = samplepath;
+		else if(topsample.equals(test.sample2)) test.url2 = samplepath;
+		else if(topsample.equals(test.sample3)) test.url3 = samplepath;
+		else if(topsample.equals(test.sample4)) test.url4 = samplepath;
 		
-		if(struploaded.equals(test.sample1)) test.url1 = url;
-		else if(struploaded.equals(test.sample2)) test.url2 = url;
-		else if(struploaded.equals(test.sample3)) test.url3 = url;
-		else if(struploaded.equals(test.sample4)) test.url4 = url;
+		try {
+			dao.update(test);
+		} catch(SQLException ex) {throw new DBException(ex.toString());}
+		return samplepath;
+	}
+	
+	
+	@Override
+	public void deletePath(int testid, String path) throws TestNotFoundException, DBException {
+		
+		TestDb test = getTestDb(testid);
+		
+		if(path.equals(test.url1)) test.url1 = null;
+		else if(path.equals(test.url2)) test.url2 = null;
+		else if(path.equals(test.url3)) test.url3 = null;
+		else if(path.equals(test.url4)) test.url4 = null;
 		
 		try {
 			dao.update(test);
 		} catch(SQLException ex) {throw new DBException(ex.toString());}
 		return;
-	}	
+	}
 
 	
 	@Override
@@ -147,7 +168,7 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 		TestDb testdb = getTestDb(testid);
 		if(getTest(testid).getSampleList().size() != 0) throw new TestNotCompletedException();
 		testdb.setTrainResult(result);
-		testdb.setStatus(TestStatus.Completed.toString());
+		testdb.setStatus(TestStatus.Completed);
 		
 		try {
 			dao.update(testdb);
@@ -160,7 +181,7 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 	public void setCompleted(int testid) throws TestNotFoundException, DBException, TestNotCompletedException {
 		TestDb testdb = getTestDb(testid);
 		if(getTest(testid).getSampleList().size() != 0) throw new TestNotCompletedException();
-		testdb.setStatus(TestStatus.Completed.toString());
+		testdb.setStatus(TestStatus.Completed);
 		
 		try {
 			dao.update(testdb);
@@ -173,7 +194,7 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 	public void setPending(int testid) throws TestNotFoundException, DBException, TestNotCompletedException {
 		TestDb testdb = getTestDb(testid);
 		if(getTest(testid).getSampleList().size() != 0) throw new TestNotCompletedException();
-		testdb.setStatus(TestStatus.Pending.toString());
+		testdb.setStatus(TestStatus.Pending);
 		
 		try {
 			dao.update(testdb);
@@ -186,12 +207,33 @@ public class DatabaseTestAccess extends AbstractDao<Integer, TestDb> implements 
 	public void setFailed(int testid) throws TestNotFoundException, DBException, TestNotCompletedException {
 		TestDb testdb = getTestDb(testid);
 		if(getTest(testid).getSampleList().size() != 0) throw new TestNotCompletedException();
-		testdb.setStatus(TestStatus.Failed.toString());
+		testdb.setStatus(TestStatus.Failed);
 		
 		try {
 			dao.update(testdb);
 		} catch(SQLException ex) {throw new DBException(ex.toString());}
 		return;
+	}
+	
+	
+	@Override
+	public int setUploadStatus(int testid, UploadStatus newstate, UploadStatus expected) throws DBException {
+		
+		try {
+			UpdateBuilder<TestDb, Integer> builder = dao.updateBuilder();
+		
+		
+			builder.updateColumnValue(TestDb.UPLOADSTATUS, newstate)
+			.where().eq(TestDb.UPLOADSTATUS, expected)
+			.and().eq(TestDb.ID, new SelectArg(testid));
+		
+	
+			// L'update fallisce se il test è già soggetto ad un altro upload
+			if (builder.update() != 1)
+				return 0;
+		
+		} catch (SQLException ex) {throw new DBException(ex.toString());}
+		return 1;
 	}
 	
 }

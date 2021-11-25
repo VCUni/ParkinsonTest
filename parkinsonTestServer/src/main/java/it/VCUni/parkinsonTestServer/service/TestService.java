@@ -29,6 +29,7 @@ import it.VCUni.parkinsonTestServer.exception.MultipleTestException;
 import it.VCUni.parkinsonTestServer.exception.ReportNotFoundException;
 import it.VCUni.parkinsonTestServer.exception.TestNotCompletedException;
 import it.VCUni.parkinsonTestServer.exception.TestNotFoundException;
+import it.VCUni.parkinsonTestServer.exception.UploadFailedException;
 import it.VCUni.parkinsonTestServer.exception.UserNotFoundException;
 import it.VCUni.parkinsonTestServer.handler.TestHandler;
 import it.VCUni.parkinsonTestServer.handler.UserHandler;
@@ -76,17 +77,32 @@ public class TestService {
 		@FormDataParam("file") FormDataContentDisposition fileMetaData, @PathParam("testid") int testid) throws IOException {
 		   
         boolean tester;
+        String path = "";
 		try {
 			if(testhandler.getTest(testid).getStatus()!=TestStatus.Uncompleted) return Response.status(Status.NOT_ACCEPTABLE).build();
 			if(userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName()).getRole().equals("Test")) tester = true;
 			else tester = false;
 			Test test = testhandler.getTest(testid);
+			if(!userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName()).getCf().equals(test.getUser()))
+				return Response.status(Status.EXPECTATION_FAILED).build();
 			if(test.getSampleList().size()==0) return Response.status(Status.BAD_REQUEST).build();
-			String path = documenthandler.saveDoc(fileInputStream, test.getId(), test.getSampleList().get(0), tester);
-			testhandler.saveAudio(SecurityContextHolder.getContext().getAuthentication().getName(), path, testid);
+			testhandler.setUploadPending(testid);
+			path = testhandler.savePath(SecurityContextHolder.getContext().getAuthentication().getName(), tester, testid);
+			documenthandler.saveAudio(fileInputStream, path, testid, tester);
+			testhandler.setUploadFree(testid);
 		} catch (UserNotFoundException | TestNotFoundException e) {
 			e.printStackTrace();
 			return Response.status(Status.NOT_FOUND).build();
+		} catch (UploadFailedException e) {
+			e.printStackTrace();
+			try {
+				testhandler.deletePath(testid, path);
+				testhandler.setUploadFree(testid);
+			} catch (TestNotFoundException | DBException e1) {
+				e1.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -107,6 +123,7 @@ public class TestService {
 		try {
 			if(testhandler.getTest(testid).getStatus()!=TestStatus.Uncompleted) return Response.status(Status.NOT_ACCEPTABLE).build();
 			us = userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName());
+			if(!us.getRole().equals("Test")) return Response.status(Status.UNAUTHORIZED).build();
 			test = testhandler.getTest(testid);
 			if(!test.getUser().equals(us.getCf())) return Response.status(Status.EXPECTATION_FAILED).build();
 			testhandler.setPending(testid);
@@ -134,7 +151,7 @@ public class TestService {
 			if(!userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName()).getRole().equals("Train"))
 				return Response.status(Status.UNAUTHORIZED).build();
 			if(!userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName()).getCf().equals(testhandler.getTest(testid).getUser()))
-				return Response.status(Status.METHOD_NOT_ALLOWED).build();
+				return Response.status(Status.EXPECTATION_FAILED).build();
 			if(Integer.parseInt(result)>5 || Integer.parseInt(result)<0) return Response.status(Status.PRECONDITION_FAILED).build();
 			testhandler.setResult(testid, result);
 		} catch (UserNotFoundException e) {
@@ -201,12 +218,12 @@ public class TestService {
 	@POST
 	@Path("report")
 	public Response getResult(@FormParam("modulus") String modulus, @FormParam("exponent") String exponent) {
-		//Test test;
 		User us;
 		String res;
 		try {
 			us = userhandler.getUser(SecurityContextHolder.getContext().getAuthentication().getName());
-			res = reporthandler.getResult(modulus, exponent, us.getCf());
+			if(!us.getRole().equals("Test")) return Response.status(Status.UNAUTHORIZED).build();
+			res = reporthandler.getResult(modulus, exponent);
 		} catch(UserNotFoundException | ReportNotFoundException e) {
 			return Response.status(Status.NOT_FOUND).build();
 		} catch(DBException e) {

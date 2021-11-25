@@ -8,6 +8,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import it.VCUni.parkinsonTestServer.entity.Test;
 import it.VCUni.parkinsonTestServer.entity.TestStatus;
+import it.VCUni.parkinsonTestServer.entity.UploadStatus;
 import it.VCUni.parkinsonTestServer.persistence.users.UserDb;
 
 /**
@@ -23,6 +24,8 @@ public class TestDb {
 	public final static String PUBEXP = "pubExp";
 	public final static String TRAINRESULT = "trainresult";
 	public final static String STATUS = "teststatus";
+	
+	public final static String UPLOADSTATUS = "uploadstatus";
 	
 	@DatabaseField(generatedId = true, columnName = ID)
 	protected int id;
@@ -61,10 +64,13 @@ public class TestDb {
 	protected String pubExp;
 	
 	@DatabaseField(canBeNull = false, columnName = STATUS)
-	protected String status;
+	protected TestStatus status;
 	
 	@DatabaseField(canBeNull = true, columnName = TRAINRESULT)
 	protected String trainresult;
+	
+	@DatabaseField(canBeNull = false, columnName = UPLOADSTATUS)
+	protected UploadStatus uploadstatus;
 	
 	
 	/**
@@ -78,7 +84,7 @@ public class TestDb {
 		if(url2==null) samplelist.add(0, sample2);
 		if(url1==null) samplelist.add(0, sample1);
 		
-		return new Test(id, user.getCf(), samplelist, Arrays.asList(pubMod, pubExp), TestStatus.valueOf(status));
+		return new Test(id, user.getCf(), samplelist, Arrays.asList(pubMod, pubExp), status);
 	}
 
 
@@ -114,14 +120,14 @@ public class TestDb {
 	/**
 	 * @param status the status to set
 	 */
-	public void setStatus(String status) {
+	public void setStatus(TestStatus status) {
 		this.status = status;
 	}
 	
 	/**
 	 * @return the status
 	 */
-	public String getStatus() {
+	public TestStatus getStatus() {
 		return status;
 	}
 	

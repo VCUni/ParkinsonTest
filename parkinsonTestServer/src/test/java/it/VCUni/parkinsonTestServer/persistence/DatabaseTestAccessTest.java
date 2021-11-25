@@ -79,7 +79,7 @@ public class DatabaseTestAccessTest {
 			testdb.getTest(0)
 		);
 		
-		testdb.saveAudio("GNNLRZ", "fake/url", t.getId());
+		testdb.savePath("GNNLRZ", "fake/url", t.getId());
 		
 		assertThrows(TestNotCompletedException.class, () -> 
 			testdb.setFailed(t.getId())
@@ -88,9 +88,9 @@ public class DatabaseTestAccessTest {
 		assertThrows(TestNotCompletedException.class, () -> 
 			testdb.setPending(t.getId())
 		);
-		testdb.saveAudio("GNNLRZ", "fake/url", t.getId());
-		testdb.saveAudio("GNNLRZ", "fake/url", t.getId());
-		testdb.saveAudio("GNNLRZ", "fake/url", t.getId());
+		testdb.savePath("GNNLRZ", "fake/url", t.getId());
+		testdb.savePath("GNNLRZ", "fake/url", t.getId());
+		testdb.savePath("GNNLRZ", "fake/url", t.getId());
 		
 		testdb.setPending(t.getId());
 		assertEquals(testdb.getPendingTests().size(),1);

@@ -223,7 +223,7 @@ class ThreadScript extends Thread{
 					+ changeStorage
 					+ "&& cd "+conn.getVenvScriptPath()
 					+ "&& activate && cd "+conn.getFilePath()
-					+ "&& python predict.py --src_dir raw-test-data\\test"+testid);
+					+ "&& python predict.py --src_dir raw-test-data/test"+testid);
 			
 			BufferedReader stdInput = new BufferedReader(new 
 		         InputStreamReader(p.getInputStream()));

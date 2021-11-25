@@ -47,7 +47,7 @@ public class TestHandlerTest {
 		);
 		
 		assertThrows(TestNotFoundException.class, () -> 
-			testhandler.saveAudio("GVNDTR", "fake/url", 0)
+			testhandler.savePath("GVNDTR", true, 0)
 		);
 	
 	}

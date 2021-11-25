@@ -16,7 +16,7 @@ public class ReportHandler {
 	 @Autowired
 	 Logger log;
 	 
-	 public String getResult(String modkey, String expkey, String cf) throws ReportNotFoundException, DBException {
+	 public String getResult(String modkey, String expkey) throws ReportNotFoundException, DBException {
 		 return reports.getResult(modkey, expkey);
 	 }
 }
