@@ -28,7 +28,7 @@ public class UserAuthHandler {
 	 * @throws DBException
 	 */
 	public void registerUser(User account, String password) throws UserAlreadyExistsException, DBException {
-		log.info("Registrazione utente in corso " + account);
+		log.info("Registrazione utente in corso " + account.getCf());
 		users.registerUser(account, password);
 	}
 }
